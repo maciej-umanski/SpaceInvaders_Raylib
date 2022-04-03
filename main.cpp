@@ -1,36 +1,39 @@
 #include "raylib-cpp.hpp"
+#include "source/Player.h"
 
-int screenWidth = 800;
-int screenHeight = 450;
+const int screenWidth = 800;
+const int screenHeight = 450;
+const int frameRate = 60;
 
-void UpdateGame();     // Update and Draw one frame
-void DrawGame();
+void UpdateGame(Player &player, vector<Bullet> &bullets);
+void DrawGame(Player &player, vector<Bullet> &bullets);
 
 int main() {
 
-    raylib::Window window(screenWidth, screenHeight, "raylib-cpp [core] example - basic window");
-    SetTargetFPS(60);   // Set our game to run at 60 frames-per-second
+    raylib::Window window(screenWidth, screenHeight, "SpaceInvaders");
+    SetTargetFPS(frameRate);
 
-    while (!window.ShouldClose()) {    // Detect window close button or ESC key, mainloop
-        UpdateGame();
-        DrawGame();
+    vector<Bullet> bullets;
+    Player player(bullets);
+
+    while (!window.ShouldClose()) {
+        UpdateGame(player, bullets);
+        DrawGame(player, bullets);
     }
 
     return 0;
 }
 
-void UpdateGame() {
+void UpdateGame(Player &player, vector<Bullet> &bullets) {
+    player.update();
+}
+
+void DrawGame(Player &player, vector<Bullet> &bullets) {
     BeginDrawing();
 
     ClearBackground(RAYWHITE);
-    DrawText("Congrats! You created your first raylib-cpp window!", 190, 200, 20, LIGHTGRAY);
+    player.draw();
+    for(auto bullet : bullets) bullet.draw();
 
     EndDrawing();
-}
-
-void DrawGame() {
-    // Update
-    //----------------------------------------------------------------------------------
-    // TODO: Update your variables here
-    //----------------------------------------------------------------------------------
 }
