@@ -8,11 +8,16 @@ using namespace std;
 
 class Bullet {
 private:
-
-public:
     Vector2 position{};
+    float speed;
+
+    void moveUp();
+public:
     explicit Bullet(Vector2 initialPosition);
     void draw();
+    void update();
+
+    bool isOutOfScreen() const;
 };
 
 

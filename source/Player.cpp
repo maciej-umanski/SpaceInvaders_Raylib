@@ -9,9 +9,15 @@ Player::Player(vector<Bullet> &bullets) : bullets(bullets) {
 
 void Player::drawPlayer() { DrawCircleV(this->position, this->size, this->color); }
 
-void Player::moveRight() { this->position.x += this->speed; }
+void Player::moveRight() {
+    if (this->position.x + this->speed + this->size > (float) GetScreenWidth()) return;
+    this->position.x += this->speed;
+}
 
-void Player::moveLeft() { this->position.x -= this->speed; }
+void Player::moveLeft() {
+    if (this->position.x - this->speed - this->size < 0) return;
+    this->position.x -= this->speed;
+}
 
 void Player::handleShoot() {
     Bullet bullet(this->position);

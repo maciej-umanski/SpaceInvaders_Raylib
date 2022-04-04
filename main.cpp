@@ -26,6 +26,15 @@ int main() {
 
 void UpdateGame(Player &player, vector<Bullet> &bullets) {
     player.update();
+
+    for(int i = 0; i < bullets.size(); i++) {
+        bullets[i].update();
+        if(bullets[i].isOutOfScreen()) {
+            bullets.erase(bullets.begin() + i);
+            i--;
+        }
+    }
+
 }
 
 void DrawGame(Player &player, vector<Bullet> &bullets) {
@@ -33,7 +42,7 @@ void DrawGame(Player &player, vector<Bullet> &bullets) {
 
     ClearBackground(RAYWHITE);
     player.draw();
-    for(auto bullet : bullets) bullet.draw();
+    for(auto &bullet : bullets) bullet.draw();
 
     EndDrawing();
 }
