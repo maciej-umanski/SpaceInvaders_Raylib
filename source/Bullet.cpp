@@ -1,8 +1,7 @@
 #include "Bullet.h"
 
 Bullet::Bullet(Vector2 initialPosition) {
-    this->position = {initialPosition.x, initialPosition.y};
-    this->speed = 2.0f;
+    this->position = initialPosition;
 }
 
 bool Bullet::isOutOfScreen() const {

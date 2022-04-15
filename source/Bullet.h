@@ -9,7 +9,7 @@ using namespace std;
 class Bullet {
 private:
     Vector2 position{};
-    float speed;
+    float speed = 5.0f;
 
     void moveUp();
 public:

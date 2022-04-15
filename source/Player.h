@@ -10,9 +10,12 @@ using namespace std;
 class Player {
 private:
     Vector2 position{};
-    float speed;
+    float speed = 3.0f;
     float size;
     Color color{};
+    bool isAbleToShoot = true;
+    float shootWaitTime = 0.2f;
+    float currentShootWaitTime = shootWaitTime;
 
     vector<Bullet> &bullets;
 
@@ -22,6 +25,7 @@ private:
     void handleShoot();
     void handleMovement();
     void handleActions();
+    void handleShootAvailability();
 
 public:
     explicit Player(vector<Bullet> &bullets);

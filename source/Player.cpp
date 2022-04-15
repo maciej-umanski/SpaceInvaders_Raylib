@@ -1,7 +1,6 @@
 #include "Player.h"
 
 Player::Player(vector<Bullet> &bullets) : bullets(bullets) {
-    this->speed = 3.0f;
     this->size = 20.0f;
     this->color = RED;
     this->position = (Vector2) {(float) GetScreenWidth() / 2, (float) GetScreenHeight() - this->size - 10.0f};
@@ -20,8 +19,21 @@ void Player::moveLeft() {
 }
 
 void Player::handleShoot() {
-    Bullet bullet(this->position);
-    this->bullets.push_back(bullet);
+    if(this->isAbleToShoot){
+        Bullet bullet(this->position);
+        this->bullets.push_back(bullet);
+        this->isAbleToShoot = false;
+    }
+}
+
+void Player::handleShootAvailability() {
+    if (!this->isAbleToShoot) {
+        this->currentShootWaitTime -= GetFrameTime();
+        if(this->currentShootWaitTime < 0.0f) {
+            this->isAbleToShoot = true;
+            this->currentShootWaitTime = this->shootWaitTime;
+        }
+    }
 }
 
 void Player::handleMovement() {
@@ -31,7 +43,7 @@ void Player::handleMovement() {
 }
 
 void Player::handleActions() {
-    if (IsKeyDown(KEY_SPACE)) this->handleShoot();
+    if (IsKeyPressed(KEY_SPACE)) this->handleShoot();
 }
 
 void Player::draw() {
@@ -41,4 +53,5 @@ void Player::draw() {
 void Player::update() {
     this->handleMovement();
     this->handleActions();
+    this->handleShootAvailability();
 }
