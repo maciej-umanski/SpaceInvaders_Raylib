@@ -1,12 +1,12 @@
 #include "Player.h"
 
 Player::Player(vector<Bullet> &bullets) : bullets(bullets) {
-    this->size = 20.0f;
-    this->color = RED;
     this->position = (Vector2) {(float) GetScreenWidth() / 2, (float) GetScreenHeight() - this->size - 10.0f};
 }
 
-void Player::drawPlayer() { DrawCircleV(this->position, this->size, this->color); }
+void Player::drawPlayer() {
+    DrawRectangleV(this->position, (Vector2) {this->size, this->size}, this->color);
+}
 
 void Player::moveRight() {
     if (this->position.x + this->speed + this->size > (float) GetScreenWidth()) return;
@@ -54,4 +54,12 @@ void Player::update() {
     this->handleMovement();
     this->handleActions();
     this->handleShootAvailability();
+}
+
+Vector2 Player::getPosition() {
+    return this->position;
+}
+
+float Player::getSize() const {
+    return this->size;
 }

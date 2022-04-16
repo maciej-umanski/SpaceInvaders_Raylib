@@ -10,6 +10,8 @@ class Bullet {
 private:
     Vector2 position{};
     float speed = 5.0f;
+    float size = 10.0f;
+    Color color = BLACK;
 
     void moveUp();
 public:
@@ -18,6 +20,8 @@ public:
     void update();
 
     bool isOutOfScreen() const;
+    Vector2 getPosition();
+    float getSize() const;
 };
 
 

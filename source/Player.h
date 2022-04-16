@@ -11,8 +11,8 @@ class Player {
 private:
     Vector2 position{};
     float speed = 3.0f;
-    float size;
-    Color color{};
+    float size = 20.0f;
+    Color color = RED;
     bool isAbleToShoot = true;
     float shootWaitTime = 0.2f;
     float currentShootWaitTime = shootWaitTime;
@@ -31,6 +31,8 @@ public:
     explicit Player(vector<Bullet> &bullets);
     void draw();
     void update();
+    Vector2 getPosition();
+    float getSize() const;
 };
 
 

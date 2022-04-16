@@ -16,9 +16,17 @@ void Bullet::moveUp() {
 }
 
 void Bullet::draw() {
-    DrawCircleV(this->position, 10, BLACK);
+    DrawRectangleV(this->position, (Vector2) {this->size, this->size}, this->color);
 }
 
 void Bullet::update() {
     this->moveUp();
+}
+
+Vector2 Bullet::getPosition() {
+    return this->position;
+}
+
+float Bullet::getSize() const {
+    return this->size;
 }

@@ -2,6 +2,7 @@
 #include "source/Bullet.h"
 #include "source/Player.h"
 #include "source/Enemy.h"
+#include "source/Misc.h"
 
 const int screenWidth = 800;
 const int screenHeight = 450;
@@ -40,6 +41,15 @@ void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies)
         if(bullets[i].isOutOfScreen()) {
             bullets.erase(bullets.begin() + i);
             i--;
+        }
+
+        for(int j = 0; j < enemies.size(); j++) {
+            if(Misc::AreCollided(bullets[i].getPosition(), bullets[i].getSize(), enemies[j].getPosition(), enemies[j].getSize())){
+                bullets.erase(bullets.begin() + i);
+                i--;
+                enemies.erase(enemies.begin() + j);
+                j--;
+            }
         }
     }
 

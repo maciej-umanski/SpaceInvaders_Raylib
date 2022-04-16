@@ -26,7 +26,7 @@ if (NOT raylib_cpp_FOUND)
 endif()
 
 # This is the main part:
-set(SOURCES main.cpp source/Player.cpp source/Player.h source/Bullet.cpp source/Bullet.h source/Enemy.cpp source/Enemy.h)
+set(SOURCES main.cpp source/Player.cpp source/Player.h source/Bullet.cpp source/Bullet.h source/Enemy.cpp source/Enemy.h source/Misc.cpp source/Misc.h)
 add_executable(${PROJECT_NAME} ${SOURCES})
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 11)
 target_link_libraries(${PROJECT_NAME} raylib raylib_cpp)

@@ -7,12 +7,15 @@
 class Enemy {
 private:
     Vector2 position{};
-    float size;
+    float size = 20.0f;
+    Color color = BLUE;
 
 public:
     explicit Enemy(Vector2 initialPosition);
 
     void draw();
+    Vector2 getPosition();
+    float getSize() const;
 };
 
 
