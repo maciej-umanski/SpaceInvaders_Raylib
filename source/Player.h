@@ -32,7 +32,7 @@ public:
     void draw();
     void update();
     Vector2 getPosition();
-    float getSize() const;
+    void resetPosition();
 };
 
 

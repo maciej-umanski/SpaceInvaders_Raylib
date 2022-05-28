@@ -11,6 +11,7 @@ private:
     Color color = RED;
     Vector2 position = {10, 10};
 public:
+    void clearPoints();
     void addPoint();
     unsigned long long getPoints() const;
     void draw();

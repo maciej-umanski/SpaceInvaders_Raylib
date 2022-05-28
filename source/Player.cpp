@@ -60,6 +60,6 @@ Vector2 Player::getPosition() {
     return this->position;
 }
 
-float Player::getSize() const {
-    return this->size;
+void Player::resetPosition() {
+    this->position = (Vector2) {(float) GetScreenWidth() / 2, (float) GetScreenHeight() - this->size - 10.0f};
 }
