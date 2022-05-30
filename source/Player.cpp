@@ -69,3 +69,7 @@ Vector2 Player::getPosition() {
 void Player::resetPosition() {
     this->position = (Vector2) {(float) GetScreenWidth() / 2, (float) GetScreenHeight() - this->size - 10.0f};
 }
+
+float Player::getHeight() const {
+    return (float) this->texture.height;
+}

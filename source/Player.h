@@ -35,6 +35,7 @@ public:
     void update();
     Vector2 getPosition();
     void resetPosition();
+    float getHeight() const;
 };
 
 

@@ -1,7 +1,9 @@
 #include "Enemy.h"
 
-Enemy::Enemy(Vector2 initialPosition) {
+Enemy::Enemy(Vector2 initialPosition, Texture2D texture) {
     this->position = initialPosition;
+    this->texture = texture;
+    this->distanceToMove = (float) texture.width / 2;
 }
 
 void Enemy::draw() {
@@ -21,26 +23,17 @@ Vector2 Enemy::getSize() const {
 }
 
 bool Enemy::willGoOutOfScreen() const {
-    return this->position.y - 2 * this->size < 0
-        || this->position.y + 2 * this->size > (float) GetScreenHeight()
-        || this->position.x - 2 * this->size< 0
-        || this->position.x + 2 * this->size > (float) GetScreenWidth();
+    return this->position.x - abs(this->distanceToMove) <= 0
+        || this->position.x + abs(this->distanceToMove) >= (float) GetScreenWidth();
 }
 
 void Enemy::updatePosition() {
     if(this->isAbleToMove){
         if(this->willGoOutOfScreen()) {
-            this->position.y += 2 * this->size;
-            if(this->direction == LEFT)
-                this->direction = RIGHT;
-            else
-                this->direction = LEFT;
+            this->position.y += this->getSize().y;
+            this->distanceToMove *= -1;
         }
-        if(direction == LEFT) {
-            this->position.x += this->size;
-        } else {
-            this->position.x -= this->size;
-        }
+        this->position.x += this->distanceToMove;
         this->isAbleToMove = false;
     } else {
         this->currentMoveWaitTime -= GetFrameTime();

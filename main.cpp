@@ -12,9 +12,9 @@ const int frameRate = 60;
 bool isLost = false;
 bool isPaused = true;
 
-void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
+void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D enemyTexture);
 void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D background);
-void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
+void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D enemyTexture);
 
 int main() {
     raylib::Window window(screenWidth, screenHeight, "SpaceInvaders");
@@ -23,23 +23,24 @@ int main() {
     Texture2D backgroundTexture = LoadTexture("../source/assets/background.png");
     Texture2D bulletTexture = LoadTexture("../source/assets/bullet.png");
     Texture2D playerTexture = LoadTexture("../source/assets/ship.png");
+    Texture2D enemyTexture = LoadTexture("../source/assets/enemy.png");
 
     vector<Bullet> bullets;
     Player player(bullets, playerTexture, bulletTexture);
     vector<Enemy> enemies;
     PointsCounter pointsCounter;
 
-    InitializeNewGame(player, bullets, enemies, pointsCounter);
+    InitializeNewGame(player, bullets, enemies, pointsCounter, enemyTexture);
 
     while (!window.ShouldClose()) {
-        UpdateGame(player, bullets, enemies, pointsCounter);
+        UpdateGame(player, bullets, enemies, pointsCounter, enemyTexture);
         DrawGame(player, bullets, enemies, pointsCounter, backgroundTexture);
     }
 
     return 0;
 }
 
-void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter) {
+void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D enemyTexture) {
     if(!isPaused){
         if (IsKeyPressed(KEY_T)) isPaused = true;
     }
@@ -68,15 +69,12 @@ void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies,
             }
 
             for (auto enemy: enemies) {
-                if (CheckCollisionPointLine(
-                        enemy.getPosition(), (Vector2) {0, player.getPosition().y},
-                        (Vector2) {(float) GetScreenWidth(), player.getPosition().y},
-                        10)) {
+                if (enemy.getPosition().y >= player.getPosition().y - player.getHeight() / 2) {
                     isLost = true;
                 }
             }
         } else {
-            if (IsKeyPressed(KEY_R)) InitializeNewGame(player, bullets, enemies, pointsCounter);
+            if (IsKeyPressed(KEY_R)) InitializeNewGame(player, bullets, enemies, pointsCounter, enemyTexture);
         }
     } else {
         if (IsKeyPressed(KEY_SPACE)) isPaused = false;
@@ -108,7 +106,7 @@ void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, P
     EndDrawing();
 }
 
-void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter) {
+void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D enemyTexture) {
 
     enemies.clear();
     bullets.clear();
@@ -116,8 +114,8 @@ void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &e
     pointsCounter.clearPoints();
     isLost = false;
 
-    for(int i = 1; i < 10; i++) {
-        Enemy enemy((Vector2) {((float) GetScreenWidth() - (float) (i * 150)), (float) GetScreenHeight() / 2});
+    for(int i = 1; i < 5; i++) {
+        Enemy enemy((Vector2) {((float) GetScreenWidth() - (float) (i * 150)), (float) GetScreenHeight() / 2}, enemyTexture);
         enemies.push_back(enemy);
     }
 }
