@@ -1,11 +1,17 @@
 #include "Player.h"
 
-Player::Player(vector<Bullet> &bullets) : bullets(bullets) {
+Player::Player(vector<Bullet> &bullets, Texture2D playerTexture, Texture2D bulletTexture) : bullets(bullets) {
     this->position = (Vector2) {(float) GetScreenWidth() / 2, (float) GetScreenHeight() - this->size - 10.0f};
+    this->texture = playerTexture;
+    this->bulletTexture = bulletTexture;
 }
 
 void Player::drawPlayer() {
-    DrawRectangleV(this->position, (Vector2) {this->size, this->size}, this->color);
+    DrawTextureEx(this->texture,
+                  (Vector2) {this->position.x - ((float)this->texture.width * this->scale / 2), this->position.y - ((float) this->texture.height * this->scale / 2) - 5},
+                  0,
+                  this->scale,
+                  WHITE);
 }
 
 void Player::moveRight() {
@@ -20,7 +26,7 @@ void Player::moveLeft() {
 
 void Player::handleShoot() {
     if(this->isAbleToShoot){
-        Bullet bullet(this->position);
+        Bullet bullet(this->position, this->bulletTexture);
         this->bullets.push_back(bullet);
         this->isAbleToShoot = false;
     }

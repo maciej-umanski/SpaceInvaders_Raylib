@@ -1,7 +1,8 @@
 #include "Bullet.h"
 
-Bullet::Bullet(Vector2 initialPosition) {
+Bullet::Bullet(Vector2 initialPosition, Texture2D texture) {
     this->position = initialPosition;
+    this->texture = texture;
 }
 
 bool Bullet::isOutOfScreen() const {
@@ -16,7 +17,11 @@ void Bullet::moveUp() {
 }
 
 void Bullet::draw() {
-    DrawRectangleV(this->position, (Vector2) {this->size, this->size}, this->color);
+    DrawTextureEx(this->texture,
+                  (Vector2) {this->position.x - ((float)this->texture.width * this->scale / 2), this->position.y - ((float) this->texture.height * this->scale / 2)},
+                  0,
+                  this->scale,
+                  RAYWHITE);
 }
 
 void Bullet::update() {
@@ -27,6 +32,6 @@ Vector2 Bullet::getPosition() {
     return this->position;
 }
 
-float Bullet::getSize() const {
-    return this->size;
+Vector2 Bullet::getSize() const {
+    return (Vector2) {(float) this->texture.width, (float) this->texture.height};
 }

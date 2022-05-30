@@ -5,15 +5,19 @@ Enemy::Enemy(Vector2 initialPosition) {
 }
 
 void Enemy::draw() {
-    DrawRectangleV(this->position, (Vector2) {this->size, this->size}, this->color);
+    DrawTextureEx(this->texture,
+                  (Vector2) {this->position.x - ((float)this->texture.width * this->scale / 2), this->position.y - ((float) this->texture.height * this->scale / 2)},
+                  0,
+                  this->scale,
+                  RAYWHITE);
 }
 
 Vector2 Enemy::getPosition() {
     return this->position;
 }
 
-float Enemy::getSize() const {
-    return this->size;
+Vector2 Enemy::getSize() const {
+    return (Vector2) {(float) this->texture.width, (float) this->texture.height};
 }
 
 bool Enemy::willGoOutOfScreen() const {

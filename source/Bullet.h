@@ -10,18 +10,18 @@ class Bullet {
 private:
     Vector2 position{};
     float speed = 5.0f;
-    float size = 10.0f;
-    Color color = BLACK;
+    float scale = 1.0f;
+    Texture2D texture;
 
     void moveUp();
 public:
-    explicit Bullet(Vector2 initialPosition);
+    explicit Bullet(Vector2 initialPosition, Texture2D texture);
     void draw();
     void update();
 
     bool isOutOfScreen() const;
     Vector2 getPosition();
-    float getSize() const;
+    Vector2 getSize() const;
 };
 
 

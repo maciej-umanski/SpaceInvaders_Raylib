@@ -7,7 +7,7 @@
 class Misc {
 
 public:
-    static bool AreCollided(Vector2 position1, float size1, Vector2 position2, float size2);
+    static bool AreCollided(Vector2 position1, float width1, float height1, Vector2 position2, float width2, float height2);
 
 };
 

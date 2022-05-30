@@ -9,11 +9,12 @@ class Enemy {
 private:
     Vector2 position{};
     float size = 20.0f;
-    Color color = BLUE;
     bool isAbleToMove = false;
-    float moveWaitTime = 0.01f;
-    float currentMoveWaitTime= moveWaitTime;
+    float moveWaitTime = 0.5f;
+    float currentMoveWaitTime = moveWaitTime;
     Direction direction = LEFT;
+    float scale = 0.5f;
+    Texture2D texture = LoadTexture("/Volumes/Dane/Studia/Grafika Komputerowa/SpaceInvaders_Raylib/source/assets/enemy.png");
 
     void updatePosition();
     bool willGoOutOfScreen() const;
@@ -24,7 +25,7 @@ public:
     void draw();
     void update();
     Vector2 getPosition();
-    float getSize() const;
+    Vector2 getSize() const;
 };
 
 

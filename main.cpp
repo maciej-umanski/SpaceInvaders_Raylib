@@ -5,24 +5,27 @@
 #include "source/Misc.h"
 #include "source/PointsCounter.h"
 
-const int screenWidth = 800;
-const int screenHeight = 450;
+const int screenWidth = 1280;
+const int screenHeight = 720;
 const int frameRate = 60;
 
 bool isLost = false;
 bool isPaused = true;
 
 void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
-void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
+void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D background);
 void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
 
 int main() {
-
     raylib::Window window(screenWidth, screenHeight, "SpaceInvaders");
     SetTargetFPS(frameRate);
 
+    Texture2D backgroundTexture = LoadTexture("../source/assets/background.png");
+    Texture2D bulletTexture = LoadTexture("../source/assets/bullet.png");
+    Texture2D playerTexture = LoadTexture("../source/assets/ship.png");
+
     vector<Bullet> bullets;
-    Player player(bullets);
+    Player player(bullets, playerTexture, bulletTexture);
     vector<Enemy> enemies;
     PointsCounter pointsCounter;
 
@@ -30,7 +33,7 @@ int main() {
 
     while (!window.ShouldClose()) {
         UpdateGame(player, bullets, enemies, pointsCounter);
-        DrawGame(player, bullets, enemies, pointsCounter);
+        DrawGame(player, bullets, enemies, pointsCounter, backgroundTexture);
     }
 
     return 0;
@@ -53,8 +56,8 @@ void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies,
                 }
 
                 for (int j = 0; j < enemies.size(); j++) {
-                    if (Misc::AreCollided(bullets[i].getPosition(), bullets[i].getSize(), enemies[j].getPosition(),
-                                          enemies[j].getSize())) {
+                    if (Misc::AreCollided(bullets[i].getPosition(), bullets[i].getSize().x, bullets[i].getSize().y,
+                                          enemies[j].getPosition(), enemies[j].getSize().x, enemies[j].getSize().y)) {
                         bullets.erase(bullets.begin() + i);
                         i--;
                         enemies.erase(enemies.begin() + j);
@@ -80,7 +83,7 @@ void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies,
     }
 }
 
-void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter) {
+void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D background) {
     BeginDrawing();
 
     if(isPaused) {
@@ -89,8 +92,9 @@ void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, P
     } else {
         if(!isLost){
             ClearBackground(RAYWHITE);
-            player.draw();
+            DrawTexture(background, 0, 0, WHITE);
             for (auto &bullet: bullets) bullet.draw();
+            player.draw();
             for (auto &enemy: enemies) enemy.draw();
             pointsCounter.draw();
         } else {
@@ -112,8 +116,8 @@ void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &e
     pointsCounter.clearPoints();
     isLost = false;
 
-    for(int i = 0; i < 10; i++) {
-        Enemy enemy((Vector2) {((float) GetScreenWidth() - (float) (i * 100) - 50), (float) GetScreenHeight() / 2});
+    for(int i = 1; i < 10; i++) {
+        Enemy enemy((Vector2) {((float) GetScreenWidth() - (float) (i * 150)), (float) GetScreenHeight() / 2});
         enemies.push_back(enemy);
     }
 }

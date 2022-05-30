@@ -12,10 +12,12 @@ private:
     Vector2 position{};
     float speed = 3.0f;
     float size = 20.0f;
-    Color color = RED;
+    float scale = 0.5f;
     bool isAbleToShoot = true;
     float shootWaitTime = 0.2f;
     float currentShootWaitTime = shootWaitTime;
+    Texture2D texture{};
+    Texture2D bulletTexture{};
 
     vector<Bullet> &bullets;
 
@@ -28,7 +30,7 @@ private:
     void handleShootAvailability();
 
 public:
-    explicit Player(vector<Bullet> &bullets);
+    explicit Player(vector<Bullet> &bullets, Texture2D playerTexture, Texture2D bulletTexture);
     void draw();
     void update();
     Vector2 getPosition();
