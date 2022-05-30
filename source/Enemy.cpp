@@ -1,13 +1,16 @@
-#include <iostream>
 #include "Enemy.h"
 #include "Misc.h"
+#include "cmath"
 
-Enemy::Enemy(Vector2 initialPosition, Texture2D texture, Sound explosionSound, float moveWaitTime) {
+Enemy::Enemy(Vector2 initialPosition, Texture2D texture, Sound explosionSound, float moveWaitTime, Direction initialDirection) {
     this->moveWaitTime = moveWaitTime;
     this->currentMoveWaitTime = moveWaitTime;
     this->position = initialPosition;
     this->texture = texture;
-    this->distanceToMove = (float) texture.width / 2;
+    this->distanceToMove = - ((float) texture.width / 2);
+    if(initialDirection == RIGHT) {
+        this->distanceToMove *= -1;
+    }
     this->explosionSound = explosionSound;
 }
 
@@ -28,8 +31,9 @@ Vector2 Enemy::getSize() const {
 }
 
 bool Enemy::willGoOutOfScreen() const {
-    return this->position.x - abs(this->distanceToMove) <= 0
-        || this->position.x + abs(this->distanceToMove) >= (float) GetScreenWidth();
+    bool willGoOutOfRight = this->distanceToMove < 0 && this->position.x - (float)this->texture.width / 2 - abs(this->distanceToMove) <= 0;
+    bool willGoOutOfLeft = this->distanceToMove > 0 && this->position.x + (float)this->texture.width / 2 + abs(this->distanceToMove) >= (float) GetScreenWidth();
+    return willGoOutOfLeft || willGoOutOfRight;
 }
 
 void Enemy::updatePosition() {

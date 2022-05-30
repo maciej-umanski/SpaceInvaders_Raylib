@@ -9,12 +9,12 @@ const int screenWidth = 1280;
 const int screenHeight = 720;
 const int frameRate = 60;
 
-enum Mode {TITLE, PAUSE, GAME, LOST};
+enum Mode {TITLE, PAUSE, GAME, LOST, NEXT_WAVE};
 enum Difficulty {EASY = 0, MEDIUM = 5, HARD = 10};
 const float enemiesSpeed[] = {1.5f, 1.4f, 1.3f, 1.2f, 1.1f, 1.0f, 0.9f, 0.8f, 0.7f, 0.6f, 0.5f, 0.4f, 0.2f, 0.1f, 0.05f, 0.01f};
 
 Mode currentMode = TITLE;
-Difficulty currentDifficulty = HARD;
+Difficulty currentDifficulty = EASY;
 bool shouldQuit = false;
 
 Texture2D titleScreen;
@@ -30,7 +30,7 @@ Music backgroundMusic;
 
 void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
 void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
-void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
+void InitializeGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
 
 int main() {
     SetRandomSeed(time(nullptr));
@@ -60,7 +60,7 @@ int main() {
     vector<Bullet> bullets;
     Player player(bullets, playerTexture, bulletTexture, laserSound);
     vector<Enemy> enemies;
-    PointsCounter pointsCounter;
+    PointsCounter pointsCounter(currentDifficulty);
 
     while (!shouldQuit) {
         UpdateGame(player, bullets, enemies, pointsCounter);
@@ -78,7 +78,8 @@ void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies,
         case TITLE:
             if (IsKeyPressed(KEY_ESCAPE)) shouldQuit = true;
             if (IsKeyPressed(KEY_SPACE)) {
-                InitializeNewGame(player, bullets, enemies, pointsCounter);
+                pointsCounter.setWave(currentDifficulty);
+                InitializeGame(player, bullets, enemies, pointsCounter);
                 currentMode = GAME;
             }
             if (IsKeyPressed(KEY_ENTER)) {
@@ -121,12 +122,21 @@ void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies,
                     currentMode = LOST;
                 }
             }
+            if(enemies.empty()) currentMode = NEXT_WAVE;
+            break;
+        }
+        case NEXT_WAVE : {
+            if (IsKeyPressed(KEY_SPACE)) {
+                pointsCounter.addWave();
+                InitializeGame(player, bullets, enemies, pointsCounter);
+                currentMode = GAME;
+            }
             break;
         }
         case LOST:
             if (IsKeyPressed(KEY_ESCAPE)) currentMode = TITLE;
             if (IsKeyPressed(KEY_SPACE)) {
-                InitializeNewGame(player, bullets, enemies, pointsCounter);
+                InitializeGame(player, bullets, enemies, pointsCounter);
                 currentMode = GAME;
             }
             break;
@@ -163,7 +173,13 @@ void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, P
             player.draw();
             for (auto &enemy: enemies) enemy.draw();
             pointsCounter.draw();
-            DrawText("Press \"ESC\" to pause the game", 0, GetScreenHeight() - 20, 20,RED);
+            DrawText("Press \"ESC\" to pause the game", (int) ((float) GetScreenWidth() / 1.35f) , GetScreenHeight() - 20, 20,RED);
+            break;
+        }
+        case NEXT_WAVE: {
+            DrawTexture(lostScreen, 0, 0, GRAY);
+            DrawText("CONGRATULATIONS!\nPress \"SPACE\" to continue to the next wave!", 100, GetScreenHeight() / 3, 40, WHITE);
+            pointsCounter.draw();
             break;
         }
         case LOST: {
@@ -178,7 +194,7 @@ void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, P
     EndDrawing();
 }
 
-void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter) {
+void InitializeGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter) {
 
     enemies.clear();
     bullets.clear();
@@ -186,7 +202,13 @@ void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &e
     pointsCounter.clearPoints();
     currentMode = GAME;
 
-    for(int i = 1; i < 5; i++) {
-        enemies.emplace_back((Vector2) {((float) GetScreenWidth() - (float) (i * 150)), (float) GetScreenHeight() / 2}, enemyTexture, explosionSound, enemiesSpeed[currentDifficulty]);
+    for(int i = 0; i < 4; i++){
+        for (int j = 0; j < 7; j++) {
+            Direction initialDirection = LEFT;
+            if(i % 2 != 0) initialDirection = RIGHT;
+            enemies.emplace_back((Vector2) {
+                    (float) GetScreenWidth() - ((float) j * (float) enemyTexture.width) - (float) enemyTexture.width / 2 - 40,
+                    (float) i * (float) enemyTexture.height + (float)enemyTexture.height / 2 }, enemyTexture, explosionSound, enemiesSpeed[currentDifficulty], initialDirection);
+        }
     }
 }

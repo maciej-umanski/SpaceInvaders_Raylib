@@ -4,6 +4,8 @@
 #include "raylib-cpp.hpp"
 #include "Misc.h"
 
+enum Direction {LEFT = 0, RIGHT};
+
 class Enemy {
 private:
     Vector2 position{};
@@ -20,7 +22,7 @@ private:
     bool willGoOutOfScreen() const;
 
 public:
-    explicit Enemy(Vector2 initialPosition, Texture2D texture, Sound explosionSound, float moveWaitTime);
+    explicit Enemy(Vector2 initialPosition, Texture2D texture, Sound explosionSound, float moveWaitTime, Direction initialDirection);
 
     void draw();
     void update();

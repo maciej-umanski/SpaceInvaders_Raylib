@@ -11,7 +11,7 @@ private:
     Vector2 position{};
     float speed = 5.0f;
     float scale = 1.0f;
-    Texture2D texture;
+    Texture2D texture{};
 
     void moveUp();
 public:
