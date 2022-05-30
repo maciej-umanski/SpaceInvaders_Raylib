@@ -2,6 +2,7 @@
 #define SPACEINVADERS_ENEMY_H
 
 #include "raylib-cpp.hpp"
+#include "Misc.h"
 
 class Enemy {
 private:
@@ -13,6 +14,7 @@ private:
     Texture2D texture{};
     float distanceToMove;
     Sound explosionSound{};
+    Color color = Misc::getRandomColor();
 
     void updatePosition();
     bool willGoOutOfScreen() const;
@@ -22,7 +24,7 @@ public:
 
     void draw();
     void update();
-    void playDestroyedSound();
+    void destroy();
     Vector2 getPosition();
     Vector2 getSize() const;
 };

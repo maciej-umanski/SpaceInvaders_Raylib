@@ -17,6 +17,7 @@ void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, P
 void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D enemyTexture, Sound explosionSound);
 
 int main() {
+    SetRandomSeed(time(nullptr));
     raylib::Window window(screenWidth, screenHeight, "SpaceInvaders");
     InitAudioDevice();
     SetTargetFPS(frameRate);
@@ -74,7 +75,7 @@ void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies,
                                           enemies[j].getPosition(), enemies[j].getSize().x, enemies[j].getSize().y)) {
                         bullets.erase(bullets.begin() + i);
                         i--;
-                        enemies[j].playDestroyedSound();
+                        enemies[j].destroy();
                         enemies.erase(enemies.begin() + j);
                         j--;
                         pointsCounter.addPoint();

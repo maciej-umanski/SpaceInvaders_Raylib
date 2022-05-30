@@ -7,3 +7,9 @@ bool Misc::AreCollided(Vector2 position1, float width1, float height1, Vector2 p
 
     return CheckCollisionRecs(rectangle1,rectangle2);
 }
+
+Color Misc::getRandomColor() {
+    Color colors[14] = {ORANGE, RED, GOLD, LIME, BLUE, VIOLET, BROWN, LIGHTGRAY, PINK,
+                        YELLOW, GREEN, SKYBLUE, PURPLE, BEIGE };
+    return colors[GetRandomValue(0, 13)];
+}

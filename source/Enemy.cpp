@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Enemy.h"
+#include "Misc.h"
 
 Enemy::Enemy(Vector2 initialPosition, Texture2D texture, Sound explosionSound) {
     this->position = initialPosition;
@@ -13,7 +14,7 @@ void Enemy::draw() {
                   (Vector2) {this->position.x - ((float)this->texture.width * this->scale / 2), this->position.y - ((float) this->texture.height * this->scale / 2)},
                   0,
                   this->scale,
-                  RAYWHITE);
+                  this->color);
 }
 
 Vector2 Enemy::getPosition() {
@@ -50,6 +51,6 @@ void Enemy::update() {
     this->updatePosition();
 }
 
-void Enemy::playDestroyedSound() {
+void Enemy::destroy() {
     PlaySound(this->explosionSound);
 }
