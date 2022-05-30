@@ -18,6 +18,7 @@ private:
     float currentShootWaitTime = shootWaitTime;
     Texture2D texture{};
     Texture2D bulletTexture{};
+    Sound laserSound;
 
     vector<Bullet> &bullets;
 
@@ -30,7 +31,7 @@ private:
     void handleShootAvailability();
 
 public:
-    explicit Player(vector<Bullet> &bullets, Texture2D playerTexture, Texture2D bulletTexture);
+    explicit Player(vector<Bullet> &bullets, Texture2D playerTexture, Texture2D bulletTexture, Sound laserSound);
     void draw();
     void update();
     Vector2 getPosition();

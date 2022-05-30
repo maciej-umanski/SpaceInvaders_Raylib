@@ -12,15 +12,17 @@ private:
     float scale = 0.5f;
     Texture2D texture{};
     float distanceToMove;
+    Sound explosionSound{};
 
     void updatePosition();
     bool willGoOutOfScreen() const;
 
 public:
-    explicit Enemy(Vector2 initialPosition, Texture2D texture);
+    explicit Enemy(Vector2 initialPosition, Texture2D texture, Sound explosionSound);
 
     void draw();
     void update();
+    void playDestroyedSound();
     Vector2 getPosition();
     Vector2 getSize() const;
 };

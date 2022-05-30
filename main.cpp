@@ -12,12 +12,13 @@ const int frameRate = 60;
 bool isLost = false;
 bool isPaused = true;
 
-void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D enemyTexture);
+void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D enemyTexture, Sound explosionSound, Music backgroundMusic);
 void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D background);
-void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D enemyTexture);
+void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D enemyTexture, Sound explosionSound);
 
 int main() {
     raylib::Window window(screenWidth, screenHeight, "SpaceInvaders");
+    InitAudioDevice();
     SetTargetFPS(frameRate);
 
     Texture2D backgroundTexture = LoadTexture("../source/assets/background.png");
@@ -25,22 +26,34 @@ int main() {
     Texture2D playerTexture = LoadTexture("../source/assets/ship.png");
     Texture2D enemyTexture = LoadTexture("../source/assets/enemy.png");
 
+    Sound laserSound = LoadSound("../source/assets/laser.wav");
+    Sound explosionSound = LoadSound("../source/assets/explosion.wav");
+    Music backgroundMusic = LoadMusicStream("../source/assets/music.mp3");
+    backgroundMusic.looping = true;
+
+    SetSoundVolume(explosionSound, 0.2f);
+    SetSoundVolume(laserSound, 0.3f);
+    SetMusicVolume(backgroundMusic, 0.3f);
+
+    PlayMusicStream(backgroundMusic);
+
     vector<Bullet> bullets;
-    Player player(bullets, playerTexture, bulletTexture);
+    Player player(bullets, playerTexture, bulletTexture, laserSound);
     vector<Enemy> enemies;
     PointsCounter pointsCounter;
 
-    InitializeNewGame(player, bullets, enemies, pointsCounter, enemyTexture);
+    InitializeNewGame(player, bullets, enemies, pointsCounter, enemyTexture, explosionSound);
 
     while (!window.ShouldClose()) {
-        UpdateGame(player, bullets, enemies, pointsCounter, enemyTexture);
+        UpdateGame(player, bullets, enemies, pointsCounter, enemyTexture, explosionSound, backgroundMusic);
         DrawGame(player, bullets, enemies, pointsCounter, backgroundTexture);
     }
 
     return 0;
 }
 
-void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D enemyTexture) {
+void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D enemyTexture, Sound explosionSound, Music backgroundMusic) {
+    UpdateMusicStream(backgroundMusic);
     if(!isPaused){
         if (IsKeyPressed(KEY_T)) isPaused = true;
     }
@@ -61,6 +74,7 @@ void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies,
                                           enemies[j].getPosition(), enemies[j].getSize().x, enemies[j].getSize().y)) {
                         bullets.erase(bullets.begin() + i);
                         i--;
+                        enemies[j].playDestroyedSound();
                         enemies.erase(enemies.begin() + j);
                         j--;
                         pointsCounter.addPoint();
@@ -68,13 +82,13 @@ void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies,
                 }
             }
 
-            for (auto enemy: enemies) {
+            for (auto &enemy: enemies) {
                 if (enemy.getPosition().y >= player.getPosition().y - player.getHeight() / 2) {
                     isLost = true;
                 }
             }
         } else {
-            if (IsKeyPressed(KEY_R)) InitializeNewGame(player, bullets, enemies, pointsCounter, enemyTexture);
+            if (IsKeyPressed(KEY_R)) InitializeNewGame(player, bullets, enemies, pointsCounter, enemyTexture, explosionSound);
         }
     } else {
         if (IsKeyPressed(KEY_SPACE)) isPaused = false;
@@ -106,7 +120,7 @@ void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, P
     EndDrawing();
 }
 
-void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D enemyTexture) {
+void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D enemyTexture, Sound explosionSound) {
 
     enemies.clear();
     bullets.clear();
@@ -115,7 +129,6 @@ void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &e
     isLost = false;
 
     for(int i = 1; i < 5; i++) {
-        Enemy enemy((Vector2) {((float) GetScreenWidth() - (float) (i * 150)), (float) GetScreenHeight() / 2}, enemyTexture);
-        enemies.push_back(enemy);
+        enemies.emplace_back((Vector2) {((float) GetScreenWidth() - (float) (i * 150)), (float) GetScreenHeight() / 2}, enemyTexture, explosionSound);
     }
 }

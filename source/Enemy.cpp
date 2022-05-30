@@ -1,9 +1,11 @@
+#include <iostream>
 #include "Enemy.h"
 
-Enemy::Enemy(Vector2 initialPosition, Texture2D texture) {
+Enemy::Enemy(Vector2 initialPosition, Texture2D texture, Sound explosionSound) {
     this->position = initialPosition;
     this->texture = texture;
     this->distanceToMove = (float) texture.width / 2;
+    this->explosionSound = explosionSound;
 }
 
 void Enemy::draw() {
@@ -46,4 +48,8 @@ void Enemy::updatePosition() {
 
 void Enemy::update() {
     this->updatePosition();
+}
+
+void Enemy::playDestroyedSound() {
+    PlaySound(this->explosionSound);
 }

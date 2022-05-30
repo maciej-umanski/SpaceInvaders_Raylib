@@ -1,9 +1,10 @@
 #include "Player.h"
 
-Player::Player(vector<Bullet> &bullets, Texture2D playerTexture, Texture2D bulletTexture) : bullets(bullets) {
+Player::Player(vector<Bullet> &bullets, Texture2D playerTexture, Texture2D bulletTexture, Sound laserSound) : bullets(bullets) {
     this->position = (Vector2) {(float) GetScreenWidth() / 2, (float) GetScreenHeight() - this->size - 10.0f};
     this->texture = playerTexture;
     this->bulletTexture = bulletTexture;
+    this->laserSound = laserSound;
 }
 
 void Player::drawPlayer() {
@@ -29,6 +30,7 @@ void Player::handleShoot() {
         Bullet bullet(this->position, this->bulletTexture);
         this->bullets.push_back(bullet);
         this->isAbleToShoot = false;
+        PlaySound(this->laserSound);
     }
 }
 
