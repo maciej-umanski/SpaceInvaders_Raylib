@@ -25,6 +25,6 @@ void PointsCounter::addWave() {
     this->wave++;
 }
 
-void PointsCounter::setWave(int wave) {
-    this->wave = wave;
+void PointsCounter::setWave(int newWave) {
+    this->wave = newWave;
 }
