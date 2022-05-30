@@ -2,7 +2,9 @@
 #include "Enemy.h"
 #include "Misc.h"
 
-Enemy::Enemy(Vector2 initialPosition, Texture2D texture, Sound explosionSound) {
+Enemy::Enemy(Vector2 initialPosition, Texture2D texture, Sound explosionSound, float moveWaitTime) {
+    this->moveWaitTime = moveWaitTime;
+    this->currentMoveWaitTime = moveWaitTime;
     this->position = initialPosition;
     this->texture = texture;
     this->distanceToMove = (float) texture.width / 2;

@@ -8,8 +8,8 @@ class Enemy {
 private:
     Vector2 position{};
     bool isAbleToMove = false;
-    float moveWaitTime = 0.5f;
-    float currentMoveWaitTime = moveWaitTime;
+    float moveWaitTime;
+    float currentMoveWaitTime;
     float scale = 0.5f;
     Texture2D texture{};
     float distanceToMove;
@@ -20,7 +20,7 @@ private:
     bool willGoOutOfScreen() const;
 
 public:
-    explicit Enemy(Vector2 initialPosition, Texture2D texture, Sound explosionSound);
+    explicit Enemy(Vector2 initialPosition, Texture2D texture, Sound explosionSound, float moveWaitTime);
 
     void draw();
     void update();

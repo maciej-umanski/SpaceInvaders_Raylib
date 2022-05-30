@@ -9,12 +9,28 @@ const int screenWidth = 1280;
 const int screenHeight = 720;
 const int frameRate = 60;
 
-bool isLost = false;
-bool isPaused = true;
+enum Mode {TITLE, PAUSE, GAME, LOST};
+enum Difficulty {EASY = 0, MEDIUM = 5, HARD = 10};
+const float enemiesSpeed[] = {1.5f, 1.4f, 1.3f, 1.2f, 1.1f, 1.0f, 0.9f, 0.8f, 0.7f, 0.6f, 0.5f, 0.4f, 0.2f, 0.1f, 0.05f, 0.01f};
 
-void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D enemyTexture, Sound explosionSound, Music backgroundMusic);
-void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D background);
-void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D enemyTexture, Sound explosionSound);
+Mode currentMode = TITLE;
+Difficulty currentDifficulty = HARD;
+bool shouldQuit = false;
+
+Texture2D titleScreen;
+Texture2D pauseScreen;
+Texture2D gameScreen;
+Texture2D lostScreen;
+Texture2D bulletTexture;
+Texture2D playerTexture;
+Texture2D enemyTexture;
+Sound laserSound;
+Sound explosionSound;
+Music backgroundMusic;
+
+void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
+void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
+void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
 
 int main() {
     SetRandomSeed(time(nullptr));
@@ -22,14 +38,17 @@ int main() {
     InitAudioDevice();
     SetTargetFPS(frameRate);
 
-    Texture2D backgroundTexture = LoadTexture("../source/assets/background.png");
-    Texture2D bulletTexture = LoadTexture("../source/assets/bullet.png");
-    Texture2D playerTexture = LoadTexture("../source/assets/ship.png");
-    Texture2D enemyTexture = LoadTexture("../source/assets/enemy.png");
+    titleScreen = LoadTexture("../source/assets/title.png");
+    lostScreen = LoadTexture("../source/assets/lost.png");
+    gameScreen = LoadTexture("../source/assets/background.png");
+    bulletTexture = LoadTexture("../source/assets/bullet.png");
+    playerTexture = LoadTexture("../source/assets/ship.png");
+    enemyTexture = LoadTexture("../source/assets/enemy.png");
+    pauseScreen = LoadTexture("../source/assets/pause.png");
+    laserSound = LoadSound("../source/assets/laser.wav");
+    explosionSound = LoadSound("../source/assets/explosion.wav");
+    backgroundMusic = LoadMusicStream("../source/assets/music.mp3");
 
-    Sound laserSound = LoadSound("../source/assets/laser.wav");
-    Sound explosionSound = LoadSound("../source/assets/explosion.wav");
-    Music backgroundMusic = LoadMusicStream("../source/assets/music.mp3");
     backgroundMusic.looping = true;
 
     SetSoundVolume(explosionSound, 0.2f);
@@ -43,23 +62,38 @@ int main() {
     vector<Enemy> enemies;
     PointsCounter pointsCounter;
 
-    InitializeNewGame(player, bullets, enemies, pointsCounter, enemyTexture, explosionSound);
-
-    while (!window.ShouldClose()) {
-        UpdateGame(player, bullets, enemies, pointsCounter, enemyTexture, explosionSound, backgroundMusic);
-        DrawGame(player, bullets, enemies, pointsCounter, backgroundTexture);
+    while (!shouldQuit) {
+        UpdateGame(player, bullets, enemies, pointsCounter);
+        DrawGame(player, bullets, enemies, pointsCounter);
     }
 
     return 0;
 }
 
-void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D enemyTexture, Sound explosionSound, Music backgroundMusic) {
+void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter) {
     UpdateMusicStream(backgroundMusic);
-    if(!isPaused){
-        if (IsKeyPressed(KEY_T)) isPaused = true;
-    }
-    if(!isPaused){
-        if (!isLost) {
+
+    switch (currentMode) {
+
+        case TITLE:
+            if (IsKeyPressed(KEY_ESCAPE)) shouldQuit = true;
+            if (IsKeyPressed(KEY_SPACE)) {
+                InitializeNewGame(player, bullets, enemies, pointsCounter);
+                currentMode = GAME;
+            }
+            if (IsKeyPressed(KEY_ENTER)) {
+                if(currentDifficulty == EASY) currentDifficulty = MEDIUM;
+                else if(currentDifficulty == MEDIUM) currentDifficulty = HARD;
+                else if(currentDifficulty == HARD) currentDifficulty = EASY;
+            }
+            break;
+        case PAUSE: {
+            if (IsKeyPressed(KEY_SPACE)) currentMode = GAME;
+            if (IsKeyPressed(KEY_ESCAPE)) currentMode = TITLE;
+            break;
+        }
+        case GAME: {
+            if (IsKeyPressed(KEY_ESCAPE)) currentMode = PAUSE;
             player.update();
             for (auto &enemy: enemies) enemy.update();
 
@@ -82,54 +116,77 @@ void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies,
                     }
                 }
             }
-
             for (auto &enemy: enemies) {
                 if (enemy.getPosition().y >= player.getPosition().y - player.getHeight() / 2) {
-                    isLost = true;
+                    currentMode = LOST;
                 }
             }
-        } else {
-            if (IsKeyPressed(KEY_R)) InitializeNewGame(player, bullets, enemies, pointsCounter, enemyTexture, explosionSound);
+            break;
         }
-    } else {
-        if (IsKeyPressed(KEY_SPACE)) isPaused = false;
+        case LOST:
+            if (IsKeyPressed(KEY_ESCAPE)) currentMode = TITLE;
+            if (IsKeyPressed(KEY_SPACE)) {
+                InitializeNewGame(player, bullets, enemies, pointsCounter);
+                currentMode = GAME;
+            }
+            break;
     }
 }
 
-void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D background) {
+void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter) {
     BeginDrawing();
+    switch (currentMode) {
 
-    if(isPaused) {
-        ClearBackground(RAYWHITE);
-        DrawText("Press \"SPACE\" to start the game.", GetScreenWidth() / 4, GetScreenHeight() / 3, 20, BLACK);
-    } else {
-        if(!isLost){
-            ClearBackground(RAYWHITE);
-            DrawTexture(background, 0, 0, WHITE);
+        case TITLE: {
+            DrawTexture(titleScreen, 0, 0, GRAY);
+            DrawText("SPACE_INVADERS", 100, GetScreenHeight() / 5, 50, RED);
+            DrawText("Press \"SPACE\" to start the game.\nPress \"ESC\" to exit the game.\nPress \"ENTER\" to change difficulty.", 100, GetScreenHeight() / 3, 40, WHITE);
+
+            string difficulty;
+            if(currentDifficulty == EASY) difficulty = "EASY";
+            else if(currentDifficulty == MEDIUM) difficulty = "MEDIUM";
+            else if(currentDifficulty == HARD) difficulty = "HARD";
+
+            DrawText(("Difficulty: " + difficulty).c_str(), 100, GetScreenHeight() - 100, 40, WHITE);
+
+            break;
+        }
+        case PAUSE: {
+            DrawTexture(pauseScreen, 0, 0, GRAY);
+            DrawText("PAUSED", 100, GetScreenHeight() / 5, 50, RED);
+            DrawText("Press \"SPACE\" to resume the game.\nPress \"ESC\" to exit to title screen.", 100, GetScreenHeight() / 3, 40, WHITE);
+            break;
+        }
+        case GAME: {
+            DrawTexture(gameScreen, 0, 0, WHITE);
             for (auto &bullet: bullets) bullet.draw();
             player.draw();
             for (auto &enemy: enemies) enemy.draw();
             pointsCounter.draw();
-        } else {
-            ClearBackground(RED);
-            auto result = "You have lost! Gained: " + std::to_string( pointsCounter.getPoints() ) + " Points!";
-            DrawText(result.c_str(), GetScreenWidth() / 4, GetScreenHeight() / 2, 30, BLACK);
-            DrawText("Press \"R\" to restart the game.", GetScreenWidth() / 4, GetScreenHeight() / 3, 20, BLACK);
+            DrawText("Press \"ESC\" to pause the game", 0, GetScreenHeight() - 20, 20,RED);
+            break;
+        }
+        case LOST: {
+            DrawTexture(lostScreen, 0, 0, GRAY);
+            auto result = "LOST! Gained: " + std::to_string( pointsCounter.getPoints() ) + " Points!";
+            DrawText(result.c_str(), 100, GetScreenHeight() / 5, 50, RED);
+            DrawText("Press \"SPACE\" to restart the game.\nPress \"ESC\" to exit to title screen.", 100, GetScreenHeight() / 3, 40, WHITE);
+            break;
         }
     }
 
     EndDrawing();
 }
 
-void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter, Texture2D enemyTexture, Sound explosionSound) {
+void InitializeNewGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter) {
 
     enemies.clear();
     bullets.clear();
     player.resetPosition();
     pointsCounter.clearPoints();
-    isLost = false;
+    currentMode = GAME;
 
     for(int i = 1; i < 5; i++) {
-        enemies.emplace_back((Vector2) {((float) GetScreenWidth() - (float) (i * 150)), (float) GetScreenHeight() / 2}, enemyTexture, explosionSound);
+        enemies.emplace_back((Vector2) {((float) GetScreenWidth() - (float) (i * 150)), (float) GetScreenHeight() / 2}, enemyTexture, explosionSound, enemiesSpeed[currentDifficulty]);
     }
 }
