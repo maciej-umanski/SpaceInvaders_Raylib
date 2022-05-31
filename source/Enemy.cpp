@@ -3,6 +3,10 @@
 #include "cmath"
 
 Enemy::Enemy(Vector2 initialPosition, Texture2D texture, Sound explosionSound, float moveWaitTime, Direction initialDirection) {
+    this->wiggleWaitTime = 0.2f;
+    this->currentWiggleWaitTime = this->wiggleWaitTime;
+    this->wiggleSleep = moveWaitTime - (moveWaitTime / 3);
+    this->currentWiggleSleep = wiggleSleep;
     this->moveWaitTime = moveWaitTime;
     this->currentMoveWaitTime = moveWaitTime;
     this->position = initialPosition;
@@ -17,7 +21,7 @@ Enemy::Enemy(Vector2 initialPosition, Texture2D texture, Sound explosionSound, f
 void Enemy::draw() {
     DrawTextureEx(this->texture,
                   (Vector2) {this->position.x - ((float)this->texture.width * this->scale / 2), this->position.y - ((float) this->texture.height * this->scale / 2)},
-                  0,
+                  this->currentRotation,
                   this->scale,
                   this->color);
 }
@@ -44,11 +48,21 @@ void Enemy::updatePosition() {
         }
         this->position.x += this->distanceToMove;
         this->isAbleToMove = false;
+        this->currentWiggleWaitTime = this->wiggleWaitTime;
+        this->currentWiggleSleep = this->wiggleSleep;
     } else {
         this->currentMoveWaitTime -= GetFrameTime();
+        this->currentWiggleWaitTime -= GetFrameTime();
+        this->currentWiggleSleep -= GetFrameTime();
         if(this->currentMoveWaitTime < 0.0f) {
             this->isAbleToMove = true;
             this->currentMoveWaitTime = this->moveWaitTime;
+        }
+        if(this->currentWiggleWaitTime < 0.0f && this->currentWiggleSleep < 0.0f) {
+            this->currentRotation *= -1;
+            this->currentWiggleWaitTime = this->wiggleWaitTime;
+        } else {
+            this->currentRotation = -3;
         }
     }
 }
