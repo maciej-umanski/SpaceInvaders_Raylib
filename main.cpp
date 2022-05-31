@@ -4,6 +4,7 @@
 #include "source/Enemy.h"
 #include "source/Misc.h"
 #include "source/PointsCounter.h"
+#include <cstdio>
 
 const int screenWidth = 1280;
 const int screenHeight = 720;
@@ -12,10 +13,12 @@ const int frameRate = 60;
 enum Mode {TITLE, PAUSE, GAME, LOST, NEXT_WAVE};
 enum Difficulty {EASY = 0, MEDIUM = 5, HARD = 10};
 const float enemiesSpeed[] = {1.5f, 1.4f, 1.3f, 1.2f, 1.1f, 1.0f, 0.9f, 0.8f, 0.7f, 0.6f, 0.5f, 0.4f, 0.2f, 0.1f, 0.05f, 0.01f};
+const char *pointsFilePath = "./points.dat";
 
 Mode currentMode = TITLE;
 Difficulty currentDifficulty = EASY;
 bool shouldQuit = false;
+unsigned long long bestPoints = 0;
 
 Texture2D titleScreen;
 Texture2D pauseScreen;
@@ -62,6 +65,10 @@ int main() {
     vector<Enemy> enemies;
     PointsCounter pointsCounter(currentDifficulty);
 
+    if(FileExists(pointsFilePath)) {
+        bestPoints = stoi(LoadFileText(pointsFilePath));
+    }
+
     while (!shouldQuit) {
         UpdateGame(player, bullets, enemies, pointsCounter);
         DrawGame(player, bullets, enemies, pointsCounter);
@@ -75,7 +82,7 @@ void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies,
 
     switch (currentMode) {
 
-        case TITLE:
+        case TITLE: {
             if (IsKeyPressed(KEY_ESCAPE)) shouldQuit = true;
             if (IsKeyPressed(KEY_SPACE)) {
                 pointsCounter.setWave(currentDifficulty);
@@ -83,14 +90,21 @@ void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies,
                 currentMode = GAME;
             }
             if (IsKeyPressed(KEY_ENTER)) {
-                if(currentDifficulty == EASY) currentDifficulty = MEDIUM;
-                else if(currentDifficulty == MEDIUM) currentDifficulty = HARD;
-                else if(currentDifficulty == HARD) currentDifficulty = EASY;
+                if (currentDifficulty == EASY) currentDifficulty = MEDIUM;
+                else if (currentDifficulty == MEDIUM) currentDifficulty = HARD;
+                else if (currentDifficulty == HARD) currentDifficulty = EASY;
             }
             break;
+        }
         case PAUSE: {
             if (IsKeyPressed(KEY_SPACE)) currentMode = GAME;
-            if (IsKeyPressed(KEY_ESCAPE)) currentMode = TITLE;
+            if (IsKeyPressed(KEY_ESCAPE)) {
+                char temp[100];
+                bestPoints = pointsCounter.getPoints();
+                sprintf(temp, "%llu", pointsCounter.getPoints());
+                SaveFileText(pointsFilePath, temp);
+                currentMode = TITLE;
+            }
             break;
         }
         case GAME: {
@@ -133,13 +147,20 @@ void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies,
             }
             break;
         }
-        case LOST:
-            if (IsKeyPressed(KEY_ESCAPE)) currentMode = TITLE;
+        case LOST: {
+            bestPoints = pointsCounter.getPoints();
+            char temp[100];
+            sprintf(temp, "%llu", pointsCounter.getPoints());
+            SaveFileText(pointsFilePath, temp);
+            if (IsKeyPressed(KEY_ESCAPE)){
+                currentMode = TITLE;
+            }
             if (IsKeyPressed(KEY_SPACE)) {
                 InitializeGame(player, bullets, enemies, pointsCounter);
                 currentMode = GAME;
             }
             break;
+        }
     }
 }
 
@@ -158,6 +179,7 @@ void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, P
             else if(currentDifficulty == HARD) difficulty = "HARD";
 
             DrawText(("Difficulty: " + difficulty).c_str(), 100, GetScreenHeight() - 100, 40, WHITE);
+            DrawText(("Best: " + std::to_string(bestPoints) + " points.").c_str(), 100, GetScreenHeight() - 200, 40, WHITE);
 
             break;
         }
