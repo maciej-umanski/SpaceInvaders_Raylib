@@ -34,31 +34,15 @@ Music backgroundMusic;
 void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
 void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
 void InitializeGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
+void saveBestPoints(PointsCounter &pointsCounter);
+void loadAssets();
 
 int main() {
     SetRandomSeed(time(nullptr));
     raylib::Window window(screenWidth, screenHeight, "SpaceInvaders");
     InitAudioDevice();
     SetTargetFPS(frameRate);
-
-    titleScreen = LoadTexture("../source/assets/title.png");
-    lostScreen = LoadTexture("../source/assets/lost.png");
-    gameScreen = LoadTexture("../source/assets/background.png");
-    bulletTexture = LoadTexture("../source/assets/bullet.png");
-    playerTexture = LoadTexture("../source/assets/ship.png");
-    enemyTexture = LoadTexture("../source/assets/enemy.png");
-    pauseScreen = LoadTexture("../source/assets/pause.png");
-    laserSound = LoadSound("../source/assets/laser.wav");
-    explosionSound = LoadSound("../source/assets/explosion.wav");
-    backgroundMusic = LoadMusicStream("../source/assets/music.mp3");
-
-    backgroundMusic.looping = true;
-
-    SetSoundVolume(explosionSound, 0.2f);
-    SetSoundVolume(laserSound, 0.3f);
-    SetMusicVolume(backgroundMusic, 0.3f);
-
-    PlayMusicStream(backgroundMusic);
+    loadAssets();
 
     vector<Bullet> bullets;
     Player player(bullets, playerTexture, bulletTexture, laserSound);
@@ -99,10 +83,7 @@ void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies,
         case PAUSE: {
             if (IsKeyPressed(KEY_SPACE)) currentMode = GAME;
             if (IsKeyPressed(KEY_ESCAPE)) {
-                char temp[100];
-                bestPoints = pointsCounter.getPoints();
-                sprintf(temp, "%llu", pointsCounter.getPoints());
-                SaveFileText(pointsFilePath, temp);
+                saveBestPoints(pointsCounter);
                 currentMode = TITLE;
             }
             break;
@@ -148,11 +129,8 @@ void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies,
             break;
         }
         case LOST: {
-            bestPoints = pointsCounter.getPoints();
-            char temp[100];
-            sprintf(temp, "%llu", pointsCounter.getPoints());
-            SaveFileText(pointsFilePath, temp);
             if (IsKeyPressed(KEY_ESCAPE)){
+                saveBestPoints(pointsCounter);
                 currentMode = TITLE;
             }
             if (IsKeyPressed(KEY_SPACE)) {
@@ -217,7 +195,6 @@ void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, P
 }
 
 void InitializeGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter) {
-
     enemies.clear();
     bullets.clear();
     player.resetPosition();
@@ -233,4 +210,32 @@ void InitializeGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enem
                     (float) i * (float) enemyTexture.height + (float)enemyTexture.height / 2 }, enemyTexture, explosionSound, enemiesSpeed[currentDifficulty], initialDirection);
         }
     }
+}
+
+void saveBestPoints(PointsCounter &pointsCounter) {
+    unsigned long long currentPoints = pointsCounter.getPoints();
+    if (currentPoints > bestPoints){
+        bestPoints = currentPoints;
+        char temp[100];
+        sprintf(temp, "%llu", pointsCounter.getPoints());
+        SaveFileText(pointsFilePath, temp);
+    }
+}
+
+void loadAssets() {
+    titleScreen = LoadTexture("../source/assets/title.png");
+    lostScreen = LoadTexture("../source/assets/lost.png");
+    gameScreen = LoadTexture("../source/assets/background.png");
+    bulletTexture = LoadTexture("../source/assets/bullet.png");
+    playerTexture = LoadTexture("../source/assets/ship.png");
+    enemyTexture = LoadTexture("../source/assets/enemy.png");
+    pauseScreen = LoadTexture("../source/assets/pause.png");
+    laserSound = LoadSound("../source/assets/laser.wav");
+    explosionSound = LoadSound("../source/assets/explosion.wav");
+    backgroundMusic = LoadMusicStream("../source/assets/music.mp3");
+    backgroundMusic.looping = true;
+    SetSoundVolume(explosionSound, 0.2f);
+    SetSoundVolume(laserSound, 0.3f);
+    SetMusicVolume(backgroundMusic, 0.3f);
+    PlayMusicStream(backgroundMusic);
 }
