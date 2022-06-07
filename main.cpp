@@ -70,6 +70,7 @@ void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies,
             if (IsKeyPressed(KEY_ESCAPE)) shouldQuit = true;
             if (IsKeyPressed(KEY_SPACE)) {
                 pointsCounter.setWave(currentDifficulty);
+                pointsCounter.clearPoints();
                 InitializeGame(player, bullets, enemies, pointsCounter);
                 currentMode = GAME;
             }
@@ -134,6 +135,7 @@ void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies,
                 currentMode = TITLE;
             }
             if (IsKeyPressed(KEY_SPACE)) {
+                pointsCounter.clearPoints();
                 InitializeGame(player, bullets, enemies, pointsCounter);
                 currentMode = GAME;
             }
@@ -198,7 +200,6 @@ void InitializeGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enem
     enemies.clear();
     bullets.clear();
     player.resetPosition();
-    pointsCounter.clearPoints();
     currentMode = GAME;
 
     for(int i = 0; i < 4; i++){
