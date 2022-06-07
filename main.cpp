@@ -1,23 +1,92 @@
 #include "raylib-cpp.hpp"
 #include "source/Bullet.h"
+/**
+* \file Bullet.h
+* Plik z definicją klasy Bullet.
+*/
 #include "source/Player.h"
+/**
+* \file Player.h
+* Plik z definicją klasy Player.
+*/
 #include "source/Enemy.h"
+/**
+* \file Enemy.h
+* Plik z definicją klasy Enemy.
+*/
 #include "source/Misc.h"
+/**
+* \file Misc.h
+* Plik z definicją klasy Misc.
+*/
 #include "source/PointsCounter.h"
+/**
+* \file PointsCounter.h
+* Plik z definicją klasy PointsCounter.
+*/
 #include <cstdio>
 
+/**
+* \file main.cpp
+*/
+
+/*!
+ * \brief Szerokość okna, domyślnie wartość 1280.
+ */
 const int screenWidth = 1280;
+/*!
+ * \brief Wysokość okna, domyślnie wartość 720.
+ */
 const int screenHeight = 720;
+/*!
+ * \brief Liczba klatek na sekundę, domyślnie wartość 60.
+ */
 const int frameRate = 60;
 
-enum Mode {TITLE, PAUSE, GAME, LOST, NEXT_WAVE};
-enum Difficulty {EASY = 0, MEDIUM = 5, HARD = 10};
+/*! Definicja trybów gry.
+ *
+ */
+enum Mode {
+    TITLE, /**< Wartość 0 jako tryb startowy. */
+        PAUSE, /**< Wartość 1 jako widok zapauzowanej gry. */
+        GAME, /**< Wartość 2 jako tryb gry. */
+        LOST, /**< Wartość 3 jako tryb przegranej w grze. */
+        NEXT_WAVE /**< Wartość 4 jako tryb następnej fali. */
+};
+/*! Definicja poziomów trudności gry.
+ *
+ */
+enum Difficulty {
+    EASY = 0, /**< Wartość 0 jako tryb łatwy. */
+        MEDIUM = 5,  /**< Wartość 5 jako tryb średniej trudności. */
+        HARD = 10 /**< Wartość 10 jako tryb trudny. */
+};
+/*!
+ *\brief Kolekcja dostępnych prędkości wrogów, typu float.
+ */
 const float enemiesSpeed[] = {1.5f, 1.4f, 1.3f, 1.2f, 1.1f, 1.0f, 0.9f, 0.8f, 0.7f, 0.6f, 0.5f, 0.4f, 0.2f, 0.1f, 0.05f, 0.01f};
+/*!
+ * \brief Nazwa pliku do zapisu punktów.
+ */
 const char *pointsFilePath = "./points.dat";
 
+/*!
+ * \brief Obecny tryb gry, zmienna typu Mode.
+ * \see Mode
+ */
 Mode currentMode = TITLE;
+/*!
+ * \brief Obecny poziom trudności, zmienna typu Difficulty.
+ * \see Difficulty
+ */
 Difficulty currentDifficulty = EASY;
+/*!
+ * \brief Flaga ustawiana w przypadku opuszczania gry, zmienna typu logicznego, domyślnie wartość false.
+ */
 bool shouldQuit = false;
+/*!
+ * \brief Najwyższy zdobyty wynik, typu unsigned long long, domyślnie wartość 0.
+ */
 unsigned long long bestPoints = 0;
 
 Texture2D titleScreen;
@@ -31,10 +100,64 @@ Sound laserSound;
 Sound explosionSound;
 Music backgroundMusic;
 
+/*!
+ * \brief Aktualizowanie stanu gry.
+ * \param[in] player gracz, jako obiekt Player
+ * \param[in] bullets kolekcja pocisków, jako obiektów Bullet
+ * \param[in] enemies kolekcja wrogów, jako obiektów Enemy
+ * \param[in] pointsCounter licznik punktów, jako obiekt PointsCounter
+ * \see InitializeGame()
+ * \see saveBestPoints()
+ * \see PointsCounter#setWave()
+ * \see Player#update()
+ * \see Enemy#update()
+ * \see Bullet#update()
+ * \see Bullet#isOutOfScreen()
+ * \see Misc#AreCollided()
+ * \see Bullet#getPosition()
+ * \see Bullet#getSize()
+ * \see Enemy#getPosition()
+ * \see Enemy#getSize()
+ * \see Enemy#destroy()
+ * \see PointsCounter#addPoint()
+ * \see Player#getPosition()
+ * \see Player#getHeight()
+ * \see PointsCounter#addWave()
+ * \see PointsCounter#clearPoints()
+ */
 void UpdateGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
+/*!
+ * \brief Rysowanie gry na ekranie.
+ * \param[in] player gracz, jako obiekt Player
+ * \param[in] bullets kolekcja pocisków, jako obiektów Bullet
+ * \param[in] enemies kolekcja wrogów, jako obiektów Enemy
+ * \param[in] pointsCounter licznik punktów, jako obiekt PointsCounter
+ * \see Player#draw()
+ * \see Enemy#draw()
+ * \see Bullet#draw()
+ * \see PointsCounter#draw()
+ * \see PointsCounter#getPoints()
+ */
 void DrawGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
+
+/*!
+ * \brief Inicjowanie gry.
+ * \param[in] player gracz, jako obiekt Player
+ * \param[in] bullets kolekcja pocisków, jako obiektów Bullet
+ * \param[in] enemies kolekcja wrogów, jako obiektów Enemy
+ * \param[in] pointsCounter licznik punktów, jako obiekt PointsCounter
+ * \see Player#resetPosition()
+ */
 void InitializeGame(Player &player, vector<Bullet> &bullets, vector<Enemy> &enemies, PointsCounter &pointsCounter);
+/*!
+ * \brief Zapisywanie najlepszego wyniku.
+ * \param[in] pointsCounter licznik punktów, jako obiekt PointsCounter
+ * \see PointsCounter#getPoints()
+ */
 void saveBestPoints(PointsCounter &pointsCounter);
+/*!
+ * \brief Ładowanie zasobow do gry.
+ */
 void loadAssets();
 
 int main() {
